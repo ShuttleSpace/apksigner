@@ -1,0 +1,50 @@
+[package]
+name = "apksigner"
+version = "0.1.0"
+edition = "2021"
+description = "Generate Android signing keys, store them encrypted in a vault backend (Bitwarden), and sign APKs via CLI or MCP without leaking secrets."
+license = "MIT"
+readme = "README.md"
+
+[[bin]]
+name = "apksigner"
+path = "src/main.rs"
+
+[dependencies]
+# CLI parsing
+clap = { version = "4", features = ["derive", "env"] }
+# Secret handling
+secrecy = "0.10"
+zeroize = "1"
+# Serialization
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+# Random password generation
+rand = "0.8"
+# Error handling
+anyhow = "1"
+thiserror = "1"
+# Time
+chrono = { version = "0.4", features = ["serde"] }
+# Config
+toml = "0.8"
+dirs = "5"
+# Encoding
+base64 = "0.22"
+# Logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["fmt", "env-filter"] }
+
+# Optional: MCP server so an AI agent can request APK signing.
+rmcp = { version = "3", optional = true, features = ["server", "macros", "transport-io", "schemars"] }
+tokio = { version = "1", optional = true, features = ["macros", "rt-multi-thread"] }
+
+[features]
+default = []
+# Expose an MCP tool server (stdio transport) so an agent can request APK signing.
+mcp = ["dep:rmcp", "dep:tokio"]
+
+[profile.release]
+opt-level = 3
+lto = true
+strip = true
